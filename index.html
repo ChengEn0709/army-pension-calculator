@@ -115,10 +115,9 @@
       display: flex;
       align-items: center;
       justify-content: center;
-      transition: transform 0.2s ease;
     }
 
-    .container { max-width: 700px; margin: 0 auto; transition: transform 0.3s ease; }
+    .container { max-width: 700px; margin: 0 auto; }
     
     .theme-toggle, .ctrl-btn {
       display: inline-flex; align-items: center; gap: 6px; font-size: 13px;
@@ -193,7 +192,8 @@
 
 <nav class="navbar">
   <div class="nav-left">
-    <img src="logo.jpg" alt="Logo" class="nav-logo">
+    <!-- 這裡修改為 ./logo.png 以對應你的檔案 -->
+    <img src="./logo.png" alt="Logo" class="nav-logo">
     <span class="nav-title">國軍退休俸試算</span>
   </div>
   <div class="nav-right">
@@ -216,7 +216,6 @@
   <p class="subtitle">依新制月退休俸計算公式試算，結果僅供參考。</p>
 
   <div class="grid-2">
-    <!-- 原有卡片內容維持不變 -->
     <div class="card">
       <label>入伍日期</label>
       <div class="date-row">
@@ -308,7 +307,6 @@
 </div>
 
 <script>
-// (JS 代碼維持原本邏輯，僅修改選單切換部分)
 const rankData = {
   col1: { name: '上校', type: 'officer', salaries: [41900, 43440, 44970, 46500, 48030, 49560, 51100, 52630, 54160, 55690, 57220, 58760] },
   col2: { name: '中校', type: 'officer', salaries: [37310, 38460, 39610, 40760, 41900, 43050, 44200, 45350, 46500, 47650, 48800, 49950] },
