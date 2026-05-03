@@ -4,6 +4,10 @@
   <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>國軍退休俸試算</title>
+  
+  <!-- 修正 1：將瀏覽器標籤頁的地球圖標改為網頁 logo -->
+  <link rel="icon" type="image/png" href="./logo.png">
+  
   <style>
     *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
 
@@ -63,10 +67,13 @@
       -webkit-backdrop-filter: blur(10px);
     }
 
-    .nav-left {
+    /* 修正 2：導覽列連結樣式 */
+    .nav-link {
       display: flex;
       align-items: center;
       gap: 12px;
+      text-decoration: none; /* 移除超連結底線 */
+      color: inherit; /* 繼承文字顏色 */
     }
 
     .nav-logo {
@@ -79,7 +86,6 @@
     .nav-title {
       font-size: 18px;
       font-weight: 700;
-      color: var(--text);
     }
 
     .sidebar {
@@ -157,7 +163,6 @@
       text-align: right; border: 2px solid var(--accent); color: var(--accent);
     }
 
-    /* 修改佈局：改為三個結果並排 */
     .results { display: grid; grid-template-columns: 1fr 1.2fr 1.2fr; gap: 10px; margin-bottom: 24px; }
     .result-box { background: var(--chip-bg); border-radius: 12px; padding: 1rem 0.5rem; text-align: center; }
     .result-box .result-label { font-size: 11px; color: var(--muted); margin-bottom: 8px; white-space: nowrap; }
@@ -177,7 +182,6 @@
 
     @media (max-width: 480px) { 
         .grid-2 { grid-template-columns: 1fr; } 
-        /* 手機端若太擠可維持並排但縮小字體，或改為 grid-template-columns: 1fr; */
         .results { grid-template-columns: 1fr 1fr 1fr; }
         .result-box .result-value { font-size: 14px; }
         .sidebar { width: 80%; right: -80%; }
@@ -189,8 +193,11 @@
 
 <nav class="navbar">
   <div class="nav-left">
-    <img src="./logo.png" alt="Logo" class="nav-logo">
-    <span class="nav-title">國軍退休俸試算</span>
+    <!-- 修正 2：加上導航首頁的連結 -->
+    <a href="https://chengen0709.github.io/army-pension-calculator/" class="nav-link">
+      <img src="./logo.png" alt="Logo" class="nav-logo">
+      <span class="nav-title">國軍退休俸試算</span>
+    </a>
   </div>
   <div class="nav-right">
     <button class="menu-toggle" id="menuToggle">☰</button>
@@ -204,7 +211,6 @@
   </button>
   <hr style="border: 0; border-top: 1px solid var(--card-border); margin: 10px 0;">
   <div style="font-size: 14px; color: var(--muted); margin-bottom: 5px;">資料管理</div>
-  <!-- 修正：儲存資料 -> 儲存 -->
   <button id="saveBtn" class="ctrl-btn primary">💾 儲存</button>
   <button id="clearBtn" class="ctrl-btn">🗑️ 重設</button>
 </div>
@@ -276,19 +282,16 @@
     </div>
   </div>
 
-  <!-- 修改：並排結果區 -->
   <div class="results">
     <div class="result-box">
       <div class="result-label">俸率</div>
       <div class="result-value" id="pct">—</div>
     </div>
     <div class="result-box">
-      <!-- 修正：月退俸預估數 -->
       <div class="result-label">月退俸預估數</div>
       <div class="result-value highlight-value" id="monthly">—</div>
     </div>
     <div class="result-box">
-      <!-- 修正：年領退俸 -->
       <div class="result-label">年領退俸</div>
       <div class="result-value highlight-value" id="annual">—</div>
     </div>
@@ -302,7 +305,7 @@
 </div>
 
 <script>
-/* JS 邏輯不變，僅更新相關 ID 的顯示 */
+/* JS 邏輯保持不變 */
 const rankData = {
   col1: { name: '上校', type: 'officer', salaries: [41900, 43440, 44970, 46500, 48030, 49560, 51100, 52630, 54160, 55690, 57220, 58760] },
   col2: { name: '中校', type: 'officer', salaries: [37310, 38460, 39610, 40760, 41900, 43050, 44200, 45350, 46500, 47650, 48800, 49950] },
