@@ -153,6 +153,7 @@
       text-align: center;
     }
 
+    /* 基礎 Grid 設定 */
     .grid-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin-bottom: 12px; }
     .card {
       background: var(--card-bg); border: 0.5px solid var(--card-border);
@@ -168,7 +169,7 @@
     }
 
     .date-row { display: flex; align-items: center; gap: 4px; }
-    .date-row select { flex: 1; min-width: 0; padding: 6px 4px; text-align: center; font-variant-numeric: tabular-nums; }
+    .date-row select { flex: 1; min-width: 0; padding: 8px 4px; text-align: center; font-variant-numeric: tabular-nums; }
     .date-row span { font-size: 12px; color: var(--muted); }
 
     .manual-row { display: flex; align-items: center; gap: 10px; }
@@ -195,16 +196,24 @@
     footer { margin-top: 2rem; text-align: center; font-size: 12px; color: var(--muted-2); }
 
     @media (max-width: 480px) { 
-        /* 強制所有 grid-2 項目在手機端併排顯示 */
         .grid-2 { grid-template-columns: 1fr 1fr; } 
+        
+        /* 強制日期欄位與年資欄位在手機端佔滿整行，避免選單太小 */
+        .grid-2 .card:nth-child(3),
+        .grid-2 .card:nth-child(4),
+        .grid-2 .card:nth-child(5) {
+            grid-column: 1 / -1; 
+        }
+
         .results { grid-template-columns: 1fr 1fr 1fr; }
         .result-box .result-value { font-size: 14px; }
         .sidebar { width: 80%; right: -80%; }
         .nav-title { font-size: 15px; }
         .nav-time { font-size: 11px; } 
         .nav-right { gap: 8px; }
-        /* 增加手機端卡片高度感 */
-        .card { padding: 1.5rem 0.75rem; }
+
+        /* 增加卡片內距讓高度放大 */
+        .card { padding: 1.5rem 0.8rem; }
     }
   </style>
 </head>
@@ -238,10 +247,11 @@
   <p class="subtitle">依新制月退休俸計算公式試算，結果僅供參考。</p>
 
   <div class="grid-2">
+    <!-- 1. 階級與俸級：置頂並在手機端維持 1x2 並排 -->
     <div class="card">
       <label>退伍階級</label>
       <select id="rank">
-        <option value="">請選擇階級</option>
+        <option value="">請選擇</option>
         <optgroup label="校級"><option value="col1">上校</option><option value="col2">中校</option><option value="col3">少校</option></optgroup>
         <optgroup label="尉級"><option value="cap1">上尉</option><option value="cap2">中尉</option><option value="cap3">少尉</option></optgroup>
         <optgroup label="士官長"><option value="woff1">一等士官長</option><option value="woff2">二等士官長</option><option value="woff3">三等士官長</option></optgroup>
@@ -250,9 +260,10 @@
     </div>
     <div class="card">
       <label>俸級</label>
-      <select id="grade"><option value="">請先選擇階級</option></select>
+      <select id="grade"><option value="">請先選擇</option></select>
     </div>
 
+    <!-- 2. 日期區塊：在手機端會自動變成 100% 寬度以確保年月日顯示正常 -->
     <div class="card">
       <label>入伍日期</label>
       <div class="date-row">
@@ -302,7 +313,6 @@
 </div>
 
 <script>
-/* 民國時間更新邏輯 */
 function updateClock() {
   const now = new Date();
   const year = now.getFullYear() - 1911;
@@ -311,9 +321,7 @@ function updateClock() {
   const hours = String(now.getHours()).padStart(2, '0');
   const minutes = String(now.getMinutes()).padStart(2, '0');
   const seconds = String(now.getSeconds()).padStart(2, '0');
-  
-  document.getElementById('currentTime').textContent = 
-    `${year}/${month}/${date} ${hours}:${minutes}:${seconds}`;
+  document.getElementById('currentTime').textContent = `${year}/${month}/${date} ${hours}:${minutes}:${seconds}`;
 }
 setInterval(updateClock, 1000);
 updateClock();
@@ -391,8 +399,8 @@ function updateDates() {
 function updateGrades() {
   const key = document.getElementById('rank').value; const gradeSelect = document.getElementById('grade');
   gradeSelect.innerHTML = '';
-  if (!key) { gradeSelect.add(new Option("請先選擇階級", "")); return; }
-  const placeholder = new Option("請選擇俸級", ""); placeholder.disabled = true; placeholder.selected = true; placeholder.hidden = true;
+  if (!key) { gradeSelect.add(new Option("請先選擇", "")); return; }
+  const placeholder = new Option("請選擇", ""); placeholder.disabled = true; placeholder.selected = true; placeholder.hidden = true;
   gradeSelect.add(placeholder);
   rankData[key].salaries.forEach((s, i) => gradeSelect.add(new Option(i + 1, s)));
   document.getElementById('baseSalary').value = ""; calc();
@@ -404,43 +412,25 @@ function calc() {
   const baseSalary = parseInt(rawSalary) || 0;
   const key = document.getElementById('rank').value;
   const breakdownDiv = document.getElementById('breakdown');
-
   if (!key || !baseSalary || years < 20) {
     document.querySelectorAll('.result-value').forEach(el => el.textContent = "—");
     breakdownDiv.innerHTML = (years < 20 && key && baseSalary) ? '年資未滿 20 年，無法領取月退休俸。' : '請輸入完整資料開始試算。';
     return;
   }
-
   const info = rankData[key];
   const maxPct = info.type === 'officer' ? 90 : 95;
   let pct = Math.min(maxPct, 55 + (years - 20) * 2);
   const baseNum = baseSalary * 2;
   const monthly = Math.round(baseNum * (pct / 100));
   const totalMonths = Math.floor((years / 5) * 12); 
-
   document.getElementById('pct').textContent = `${pct}%`;
   document.getElementById('monthly').textContent = `${formatComma(monthly)}`;
   document.getElementById('annual').textContent = `${formatComma(monthly * 12)}`;
-  
-  breakdownDiv.innerHTML = `
-    服役年資：${years}年<br>
-    計算基數：最後五分之一年資（約最後 ${totalMonths} 個月）薪資平均 NT$ ${formatComma(baseSalary)} × 2 = NT$ ${formatComma(baseNum)}<br>
-    俸率：55% + (${years} − 20) × 2% = ${pct}%<br>
-    月退休俸：NT$ ${formatComma(baseNum)} × ${pct}% = <strong>NT$ ${formatComma(monthly)} / 月</strong>
-    <div class="formula-note">
-      公式：最後五分之一年資之平均本俸 × 2 × 俸率。軍官上限 90%，士官 95%。
-    </div>
-  `;
+  breakdownDiv.innerHTML = `服役年資：${years}年<br>計算基數：最後五分之一年資（約最後 ${totalMonths} 個月）薪資平均 NT$ ${formatComma(baseSalary)} × 2 = NT$ ${formatComma(baseNum)}<br>俸率：55% + (${years} − 20) × 2% = ${pct}%<br>月退休俸：NT$ ${formatComma(baseNum)} × ${pct}% = <strong>NT$ ${formatComma(monthly)} / 月</strong><div class="formula-note">公式：最後五分之一年資之平均本俸 × 2 × 俸率。軍官上限 90%，士官 95%。</div>`;
 }
 
 document.getElementById('saveBtn').addEventListener('click', () => {
-  const data = {
-    enlistY: document.getElementById('enlistY').value,
-    enlistM: document.getElementById('enlistM').value,
-    enlistD: document.getElementById('enlistD').value,
-    rank: document.getElementById('rank').value,
-    gradeIndex: document.getElementById('grade').selectedIndex
-  };
+  const data = { enlistY: document.getElementById('enlistY').value, enlistM: document.getElementById('enlistM').value, enlistD: document.getElementById('enlistD').value, rank: document.getElementById('rank').value, gradeIndex: document.getElementById('grade').selectedIndex };
   if (!data.enlistY || !data.rank || data.gradeIndex <= 0) { alert('請輸入完整入伍日期與階級俸級。'); return; }
   localStorage.setItem(STORAGE_KEY, JSON.stringify(data));
   alert('資料已儲存！'); sidebar.classList.remove('open'); menuToggle.textContent = '☰';
