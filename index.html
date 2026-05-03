@@ -158,13 +158,15 @@
       background: var(--card-bg); border: 0.5px solid var(--card-border);
       border-radius: 14px; padding: 1.2rem 1.25rem;
     }
-    .card.full { grid-column: 1 / -1; }
-    .card label { display: block; font-size: 13px; color: var(--muted); margin-bottom: 8px; text-align: inherit; }
+    /* 修正：電腦端也讓總服役年資置中 */
+    .card.full { grid-column: 1 / -1; text-align: center; }
+    .card label { display: block; font-size: 13px; color: var(--muted); margin-bottom: 8px; }
 
     select, input {
       width: 100%; font-size: 14px; padding: 7px 10px;
       border: 1px solid var(--input-border); border-radius: 8px;
       background: var(--input-bg); color: var(--text); outline: none;
+      text-align: inherit; 
     }
 
     .date-row { display: flex; align-items: center; gap: 4px; }
@@ -197,15 +199,20 @@
     @media (max-width: 480px) { 
         .grid-2 { grid-template-columns: 1fr 1fr; } 
         
+        .grid-2 .card:nth-child(1),
+        .grid-2 .card:nth-child(2) {
+            text-align: center;
+        }
+
         .grid-2 .card:nth-child(3),
         .grid-2 .card:nth-child(4),
         .grid-2 .card:nth-child(5) {
             grid-column: 1 / -1; 
-            text-align: center; /* 讓日期標籤與選單置中 */
+            text-align: center;
         }
 
-        .date-row { justify-content: center; } /* 修正：讓日期欄位在手機端置中 */
-        .date-row select { flex: 0 1 80px; } /* 給予基礎寬度，避免自動拉太長 */
+        .date-row { justify-content: center; }
+        .date-row select { flex: 0 1 80px; }
 
         .results { grid-template-columns: 1fr 1fr 1fr; }
         .result-box .result-value { font-size: 14px; }
@@ -286,7 +293,6 @@
     </div>
 
     <div class="card full">
-      <!-- 修正：標題改為 總服役年資 -->
       <p style="font-size:13px; color:var(--muted)">總服役年資</p>
       <p id="serviceDisplay" style="font-size: 18px; font-weight: 600; color: var(--accent); margin-top: 4px;">—</p>
       <div class="error" id="dateError"></div>
@@ -294,7 +300,7 @@
   </div>
 
   <div class="card" style="margin-bottom: 12px; display: flex; align-items: center; justify-content: space-between; border-left: 4px solid var(--accent);">
-    <label style="margin-bottom: 0; font-weight: 600;">平均本俸（最後 1/5 年資）</label>
+    <label style="margin-bottom: 0; font-weight: 600; line-height: 1.4;">最後五分之一年資<br>本俸平均數</label>
     <div class="manual-row">
       <span style="font-size:16px; font-weight:600; color: var(--muted-2);">NT$</span>
       <input type="text" id="baseSalary" class="salary-input" placeholder="0">
@@ -425,7 +431,7 @@ function calc() {
   document.getElementById('pct').textContent = `${pct}%`;
   document.getElementById('monthly').textContent = `${formatComma(monthly)}`;
   document.getElementById('annual').textContent = `${formatComma(monthly * 12)}`;
-  breakdownDiv.innerHTML = `總服役年資：${years}年<br>計算基數：最後五分之一年資（約最後 ${totalMonths} 個月）薪資平均 NT$ ${formatComma(baseSalary)} × 2 = NT$ ${formatComma(baseNum)}<br>俸率：55% + (${years} − 20) × 2% = ${pct}%<br>月退休俸：NT$ ${formatComma(baseNum)} × ${pct}% = <strong>NT$ ${formatComma(monthly)} / 月</strong><div class="formula-note">公式：最後五分之一年資之平均本俸 × 2 × 俸率。軍官上限 90%，士官 95%。</div>`;
+  breakdownDiv.innerHTML = `總服役年資：${years}年<br>計算基數：最後五分之一年資（約最後 ${totalMonths} 個月）本俸平均數 NT$ ${formatComma(baseSalary)} × 2 = NT$ ${formatComma(baseNum)}<br>俸率：55% + (${years} − 20) × 2% = ${pct}%<br>月退休俸：NT$ ${formatComma(baseNum)} × ${pct}% = <strong>NT$ ${formatComma(monthly)} / 月</strong><div class="formula-note">公式：最後五分之一年資之平均本俸 × 2 × 俸率。軍官上限 90%，士官 95%。</div>`;
 }
 
 document.getElementById('saveBtn').addEventListener('click', () => {
