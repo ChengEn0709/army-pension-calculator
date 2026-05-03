@@ -119,11 +119,12 @@
     <div class="card">
       <label>入伍日期</label>
       <div class="date-row">
-        <select id="enlistY"><option value="">年</option></select>
+        <!-- 修改點：使用 hidden 讓提示文字不顯示在清單中[cite: 1] -->
+        <select id="enlistY"><option value="" disabled selected hidden>年</option></select>
         <span>年</span>
-        <select id="enlistM"><option value="">月</option></select>
+        <select id="enlistM"><option value="" disabled selected hidden>月</option></select>
         <span>月</span>
-        <select id="enlistD"><option value="">日</option></select>
+        <select id="enlistD"><option value="" disabled selected hidden>日</option></select>
         <span>日</span>
       </div>
     </div>
@@ -131,11 +132,11 @@
     <div class="card">
       <label>退伍日期</label>
       <div class="date-row">
-        <select id="dischargeY"><option value="">年</option></select>
+        <select id="dischargeY"><option value="" disabled selected hidden>年</option></select>
         <span>年</span>
-        <select id="dischargeM"><option value="">月</option></select>
+        <select id="dischargeM"><option value="" disabled selected hidden>月</option></select>
         <span>月</span>
-        <select id="dischargeD"><option value="">日</option></select>
+        <select id="dischargeD"><option value="" disabled selected hidden>日</option></select>
         <span>日</span>
       </div>
     </div>
@@ -207,9 +208,6 @@
 </div>
 
 <script>
-/**
- * 更新後的階級與本俸數據 (rankData)
- */
 const rankData = {
   col1: { name: '上校', type: 'officer', salaries: [41900, 43440, 44970, 46500, 48030, 49560, 51100, 52630, 54160, 55690, 57220, 58760] },
   col2: { name: '中校', type: 'officer', salaries: [37310, 38460, 39610, 40760, 41900, 43050, 44200, 45350, 46500, 47650, 48800, 49950] },
@@ -232,6 +230,7 @@ function pad(n) { return n < 10 ? '0' + n : n; }
 
 function initDateSelects() {
   const ey = document.getElementById('enlistY'); const dy = document.getElementById('dischargeY');
+  // 加入純數字選項[cite: 1]
   for (let i = 80; i <= 115; i++) ey.add(new Option(i, i));
   for (let i = 100; i <= 145; i++) dy.add(new Option(i, i));
   
@@ -286,7 +285,10 @@ function updateGrades() {
   const key = document.getElementById('rank').value; const gradeSelect = document.getElementById('grade');
   gradeSelect.innerHTML = '';
   if (!key) { gradeSelect.add(new Option("請先選擇階級", "")); return; }
-  gradeSelect.add(new Option("請選擇俸級", ""));
+  // 俸級選單同樣套用 hidden 技巧[cite: 1]
+  const placeholder = new Option("請選擇俸級", "");
+  placeholder.disabled = true; placeholder.selected = true; placeholder.hidden = true;
+  gradeSelect.add(placeholder);
   rankData[key].salaries.forEach((s, i) => gradeSelect.add(new Option(i + 1, s)));
   document.getElementById('baseSalary').value = ""; calc();
 }
