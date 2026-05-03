@@ -126,7 +126,7 @@
       background: var(--input-bg); color: var(--text); outline: none;
     }
 
-    /* 置中規則優化[cite: 1] */
+    /* 置中規則強化[cite: 1] */
     .date-row select, 
     select:invalid, 
     select option[value=""] {
@@ -134,7 +134,6 @@
       text-align-last: center;
     }
 
-    /* 階級選單內容靠左，但預設提示文字置中[cite: 1] */
     #rank, #grade {
       text-align: left;
       text-align-last: left;
@@ -155,6 +154,9 @@
       border-left: 4px solid var(--accent); text-align: left; gap: 10px;
     }
     .salary-card label { margin-bottom: 0; font-weight: 600; white-space: nowrap; }
+
+    /* 設定手機端換行樣式[cite: 1] */
+    .salary-card label br { display: none; }
 
     .manual-row { display: flex; align-items: center; gap: 10px; flex-shrink: 0; }
     .salary-input {
@@ -187,13 +189,14 @@
         .nav-right { gap: 8px; }
         .card { padding: 1.5rem 0.8rem; }
         
-        /* 手機端標籤強制換行[cite: 1] */
+        /* 手機端標籤換行顯示[cite: 1] */
         .salary-card { flex-direction: column; align-items: flex-start; }
-        .salary-card label { white-space: normal; line-height: 1.4; margin-bottom: 12px; }
+        .salary-card label { white-space: normal; line-height: 1.5; margin-bottom: 12px; }
+        .salary-card label br { display: inline; } /* 顯示換行[cite: 1] */
         .manual-row { width: 100%; justify-content: flex-end; }
 
-        /* 手機端選單預設文字置中強化[cite: 1] */
-        select { text-align: center; text-align-last: center; }
+        /* 手機端強制選單內容置中[cite: 1] */
+        select { text-align: center !important; text-align-last: center !important; }
         select option { text-align: left; }
     }
   </style>
@@ -225,7 +228,6 @@
 </div>
 
 <div class="container">
-  <!-- 更新後的提示文字[cite: 1] -->
   <p class="subtitle">本網站數據試算，僅供參考，實際應依主管機關核定為主。</p>
 
   <div class="grid-2">
@@ -291,7 +293,8 @@
   </div>
 
   <div class="card salary-card">
-    <label>最後五分之一年資本俸平均數</label>
+    <!-- 手機端指定斷行位置[cite: 1] -->
+    <label>最後五分之一年資<br>本俸平均數</label>
     <div class="manual-row">
       <span style="font-size:16px; font-weight:600; color: var(--muted-2);">NT$</span>
       <input type="text" id="baseSalary" class="salary-input" placeholder="0" style="text-align: right;">
