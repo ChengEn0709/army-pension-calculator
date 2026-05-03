@@ -46,7 +46,6 @@
       overflow-x: hidden;
     }
 
-    /* 頂部導覽列 */
     .navbar {
       position: fixed;
       top: 0;
@@ -83,15 +82,14 @@
       color: var(--text);
     }
 
-    /* 修正為右側側邊欄樣式 */
     .sidebar {
       position: fixed;
       top: var(--nav-height);
-      right: calc(-1 * var(--sidebar-width)); /* 改為右側隱藏 */
+      right: calc(-1 * var(--sidebar-width));
       width: var(--sidebar-width);
       height: calc(100% - var(--nav-height));
       background: var(--card-bg);
-      border-left: 1px solid var(--card-border); /* 邊框改為左側 */
+      border-left: 1px solid var(--card-border);
       padding: 20px;
       display: flex;
       flex-direction: column;
@@ -101,9 +99,8 @@
       box-shadow: -5px 0 15px rgba(0,0,0,0.1);
     }
 
-    .sidebar.open { right: 0; } /* 展開時對齊右側 */
+    .sidebar.open { right: 0; }
 
-    /* 切換按鈕樣式 */
     .menu-toggle {
       background: none;
       border: none;
@@ -114,7 +111,7 @@
       height: 40px;
       display: flex;
       align-items: center;
-      justify-content: flex-end; /* 按鈕圖示靠右 */
+      justify-content: flex-end;
     }
 
     .container { max-width: 700px; margin: 0 auto; }
@@ -160,16 +157,13 @@
       text-align: right; border: 2px solid var(--accent); color: var(--accent);
     }
 
-    .results { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 12px; margin-bottom: 12px; }
-    .result-box { background: var(--chip-bg); border-radius: 12px; padding: 1rem; text-align: center; }
-    .result-box .result-label { font-size: 12px; color: var(--muted); margin-bottom: 6px; }
-    .result-box .result-value { font-size: 18px; font-weight: 500; }
+    /* 修改佈局：改為三個結果並排 */
+    .results { display: grid; grid-template-columns: 1fr 1.2fr 1.2fr; gap: 10px; margin-bottom: 24px; }
+    .result-box { background: var(--chip-bg); border-radius: 12px; padding: 1rem 0.5rem; text-align: center; }
+    .result-box .result-label { font-size: 11px; color: var(--muted); margin-bottom: 8px; white-space: nowrap; }
+    .result-box .result-value { font-size: 16px; font-weight: 600; }
 
-    .annual-box {
-      background: var(--chip-bg); border-radius: 12px; padding: 1rem;
-      text-align: center; margin-bottom: 1.5rem;
-    }
-    .annual-box .result-value { font-size: 28px; font-weight: 600; }
+    .highlight-value { color: var(--accent); }
 
     .breakdown { font-size: 13px; color: var(--text); line-height: 1.8; padding: 4px 0; }
     .breakdown strong { color: var(--accent); }
@@ -182,8 +176,11 @@
     footer { margin-top: 2rem; text-align: center; font-size: 12px; color: var(--muted-2); }
 
     @media (max-width: 480px) { 
-        .grid-2, .results { grid-template-columns: 1fr; } 
-        .sidebar { width: 80%; right: -80%; } /* 手機端同樣從右側隱藏 */
+        .grid-2 { grid-template-columns: 1fr; } 
+        /* 手機端若太擠可維持並排但縮小字體，或改為 grid-template-columns: 1fr; */
+        .results { grid-template-columns: 1fr 1fr 1fr; }
+        .result-box .result-value { font-size: 14px; }
+        .sidebar { width: 80%; right: -80%; }
         .nav-title { font-size: 16px; }
     }
   </style>
@@ -193,7 +190,6 @@
 <nav class="navbar">
   <div class="nav-left">
     <img src="./logo.png" alt="Logo" class="nav-logo">
-    <!-- 修改 1：標題簡化為 國軍退休俸試算 -->
     <span class="nav-title">國軍退休俸試算</span>
   </div>
   <div class="nav-right">
@@ -201,7 +197,6 @@
   </div>
 </nav>
 
-<!-- 修改 2：側邊欄現在會從右方彈出 -->
 <div class="sidebar" id="sidebar">
   <div style="font-size: 14px; color: var(--muted); margin-bottom: 5px;">偏好設定</div>
   <button class="theme-toggle" id="themeToggle">
@@ -209,8 +204,9 @@
   </button>
   <hr style="border: 0; border-top: 1px solid var(--card-border); margin: 10px 0;">
   <div style="font-size: 14px; color: var(--muted); margin-bottom: 5px;">資料管理</div>
-  <button id="saveBtn" class="ctrl-btn primary">💾 儲存資料</button>
-  <button id="clearBtn" class="ctrl-btn">🗑️ 清除資料</button>
+  <!-- 修正：儲存資料 -> 儲存 -->
+  <button id="saveBtn" class="ctrl-btn primary">💾 儲存</button>
+  <button id="clearBtn" class="ctrl-btn">🗑️ 重設</button>
 </div>
 
 <div class="container">
@@ -280,24 +276,22 @@
     </div>
   </div>
 
+  <!-- 修改：並排結果區 -->
   <div class="results">
     <div class="result-box">
-      <div class="result-label">計算基數</div>
-      <div class="result-value" id="baseNum">—</div>
-    </div>
-    <div class="result-box">
-      <div class="result-label">退休俸率</div>
+      <div class="result-label">俸率</div>
       <div class="result-value" id="pct">—</div>
     </div>
     <div class="result-box">
-      <div class="result-label">預計每月退休俸</div>
-      <div class="result-value" id="monthly">—</div>
+      <!-- 修正：月退俸預估數 -->
+      <div class="result-label">月退俸預估數</div>
+      <div class="result-value highlight-value" id="monthly">—</div>
     </div>
-  </div>
-
-  <div class="annual-box">
-    <div class="result-label">年領退休俸</div>
-    <div class="result-value" id="annual">—</div>
+    <div class="result-box">
+      <!-- 修正：年領退俸 -->
+      <div class="result-label">年領退俸</div>
+      <div class="result-value highlight-value" id="annual">—</div>
+    </div>
   </div>
 
   <div class="card">
@@ -308,7 +302,7 @@
 </div>
 
 <script>
-/* JS 邏輯維持不變 */
+/* JS 邏輯不變，僅更新相關 ID 的顯示 */
 const rankData = {
   col1: { name: '上校', type: 'officer', salaries: [41900, 43440, 44970, 46500, 48030, 49560, 51100, 52630, 54160, 55690, 57220, 58760] },
   col2: { name: '中校', type: 'officer', salaries: [37310, 38460, 39610, 40760, 41900, 43050, 44200, 45350, 46500, 47650, 48800, 49950] },
@@ -409,10 +403,9 @@ function calc() {
   const monthly = Math.round(baseNum * (pct / 100));
   const totalMonths = Math.floor((years / 5) * 12); 
 
-  document.getElementById('baseNum').textContent = `NT$ ${formatComma(baseNum)}`;
   document.getElementById('pct').textContent = `${pct}%`;
-  document.getElementById('monthly').textContent = `NT$ ${formatComma(monthly)}`;
-  document.getElementById('annual').textContent = `NT$ ${formatComma(monthly * 12)}`;
+  document.getElementById('monthly').textContent = `${formatComma(monthly)}`;
+  document.getElementById('annual').textContent = `${formatComma(monthly * 12)}`;
   
   breakdownDiv.innerHTML = `
     服役年資：${years}年<br>
@@ -438,7 +431,7 @@ document.getElementById('saveBtn').addEventListener('click', () => {
   alert('資料已儲存！'); sidebar.classList.remove('open'); menuToggle.textContent = '☰';
 });
 
-document.getElementById('clearBtn').addEventListener('click', () => { if (confirm('確定要清除存檔資料嗎？')) { localStorage.removeItem(STORAGE_KEY); location.reload(); } });
+document.getElementById('clearBtn').addEventListener('click', () => { if (confirm('確定要重設所有資料嗎？')) { localStorage.removeItem(STORAGE_KEY); location.reload(); } });
 
 function loadSavedData() {
   const saved = localStorage.getItem(STORAGE_KEY);
