@@ -1,7 +1,7 @@
 <!DOCTYPE html>
-<!-- saved from url=(0050)file:///C:/Users/ChengChungNote/Desktop/index.html -->
-<html lang="zh-TW" data-theme="dark"><head><meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
-  
+<html lang="zh-TW" data-theme="dark">
+<head>
+  <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>國軍退休俸試算 - 專業版</title>
   <style>
@@ -19,6 +19,7 @@
       --input-border: #d2d2d7;
       --accent: #0071e3;
       --error: #ff3b30;
+      --sidebar-width: 200px;
     }
 
     [data-theme="dark"] {
@@ -41,20 +42,68 @@
       color: var(--text);
       min-height: 100vh;
       padding: 2rem 1rem;
+      overflow-x: hidden;
     }
 
-    .container { max-width: 700px; margin: 0 auto; }
-    .top-bar { display: flex; justify-content: flex-end; margin-bottom: 12px; }
-    .theme-toggle {
+    /* 側邊欄樣式 - 左側[cite: 1] */
+    .sidebar {
+      position: fixed;
+      top: 0;
+      left: calc(-1 * var(--sidebar-width));
+      width: var(--sidebar-width);
+      height: 100%;
+      background: var(--card-bg);
+      border-right: 1px solid var(--card-border);
+      padding: 80px 20px;
+      display: flex;
+      flex-direction: column;
+      gap: 15px;
+      transition: left 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+      z-index: 100;
+      box-shadow: 5px 0 15px rgba(0,0,0,0.1);
+    }
+
+    .sidebar.open { left: 0; }
+
+    /* 切換按鈕[cite: 1] */
+    .menu-toggle {
+      position: fixed;
+      top: 20px;
+      left: 20px;
+      z-index: 101;
+      width: 40px;
+      height: 40px;
+      border-radius: 50%;
+      background: var(--accent);
+      color: white;
+      border: none;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 20px;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.2);
+      transition: all 0.3s ease;
+    }
+
+    .container { max-width: 700px; margin: 0 auto; transition: transform 0.3s ease; }
+    
+    .theme-toggle, .ctrl-btn {
       display: inline-flex; align-items: center; gap: 6px; font-size: 13px;
-      padding: 6px 12px; border-radius: 999px; border: 1px solid var(--card-border);
+      padding: 10px 16px; border-radius: 12px; border: 1px solid var(--card-border);
       background: var(--card-bg); color: var(--text); cursor: pointer;
+      transition: all 0.2s ease;
+      width: 100%;
+      justify-content: center;
     }
 
-    h1 { font-size: 22px; font-weight: 600; margin-bottom: 6px; }
+    .ctrl-btn.primary { background: var(--accent); color: #ffffff; border: none; }
+
+    h1 { font-size: 22px; font-weight: 600; margin-bottom: 6px; text-align: center; }
     .subtitle {
       font-size: 13px; color: var(--muted); margin-bottom: 1.5rem;
       background: var(--chip-bg); padding: 8px 14px; border-radius: 10px;
+      text-align: center;
     }
 
     .grid-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin-bottom: 12px; }
@@ -102,16 +151,30 @@
     .error { font-size: 12px; color: var(--error); margin-top: 6px; display: none; }
     footer { margin-top: 2rem; text-align: center; font-size: 12px; color: var(--muted-2); }
 
-    @media (max-width: 480px) { .grid-2, .results { grid-template-columns: 1fr; } }
+    @media (max-width: 480px) { 
+        .grid-2, .results { grid-template-columns: 1fr; } 
+        .sidebar { width: 80%; left: -80%; }
+    }
   </style>
 </head>
 <body>
+
+<!-- 控制按鈕 -->
+<button class="menu-toggle" id="menuToggle">☰</button>
+
+<!-- 左側側邊選單[cite: 1] -->
+<div class="sidebar" id="sidebar">
+  <div style="font-size: 14px; color: var(--muted); margin-bottom: 5px;">偏好設定</div>
+  <button class="theme-toggle" id="themeToggle">
+    <span id="themeIcon">☀️</span><span id="themeLabel">淺色模式</span>
+  </button>
+  <hr style="border: 0; border-top: 1px solid var(--card-border); margin: 10px 0;">
+  <div style="font-size: 14px; color: var(--muted); margin-bottom: 5px;">資料管理</div>
+  <button id="saveBtn" class="ctrl-btn primary">💾 儲存資料</button>
+  <button id="clearBtn" class="ctrl-btn">🗑️ 清除資料</button>
+</div>
+
 <div class="container">
-  <div class="top-bar">
-    <button class="theme-toggle" id="themeToggle">
-      <span id="themeIcon">☀️</span><span id="themeLabel">淺色模式</span>
-    </button>
-  </div>
   <h1>國軍退休俸試算</h1>
   <p class="subtitle">依新制月退休俸計算公式試算，結果僅供參考。</p>
 
@@ -119,12 +182,11 @@
     <div class="card">
       <label>入伍日期</label>
       <div class="date-row">
-        <!-- 修改點：使用 hidden 讓提示文字不顯示在清單中[cite: 1] -->
-        <select id="enlistY"><option value="" disabled="" selected="" hidden="">年</option><option value="80">80</option><option value="81">81</option><option value="82">82</option><option value="83">83</option><option value="84">84</option><option value="85">85</option><option value="86">86</option><option value="87">87</option><option value="88">88</option><option value="89">89</option><option value="90">90</option><option value="91">91</option><option value="92">92</option><option value="93">93</option><option value="94">94</option><option value="95">95</option><option value="96">96</option><option value="97">97</option><option value="98">98</option><option value="99">99</option><option value="100">100</option><option value="101">101</option><option value="102">102</option><option value="103">103</option><option value="104">104</option><option value="105">105</option><option value="106">106</option><option value="107">107</option><option value="108">108</option><option value="109">109</option><option value="110">110</option><option value="111">111</option><option value="112">112</option><option value="113">113</option><option value="114">114</option><option value="115">115</option></select>
+        <select id="enlistY"><option value="" disabled selected hidden>年</option></select>
         <span>年</span>
-        <select id="enlistM"><option value="" disabled="" selected="" hidden="">月</option><option value="1">01</option><option value="2">02</option><option value="3">03</option><option value="4">04</option><option value="5">05</option><option value="6">06</option><option value="7">07</option><option value="8">08</option><option value="9">09</option><option value="10">10</option><option value="11">11</option><option value="12">12</option></select>
+        <select id="enlistM"><option value="" disabled selected hidden>月</option></select>
         <span>月</span>
-        <select id="enlistD"><option value="" disabled="" selected="" hidden="">日</option><option value="1">01</option><option value="2">02</option><option value="3">03</option><option value="4">04</option><option value="5">05</option><option value="6">06</option><option value="7">07</option><option value="8">08</option><option value="9">09</option><option value="10">10</option><option value="11">11</option><option value="12">12</option><option value="13">13</option><option value="14">14</option><option value="15">15</option><option value="16">16</option><option value="17">17</option><option value="18">18</option><option value="19">19</option><option value="20">20</option><option value="21">21</option><option value="22">22</option><option value="23">23</option><option value="24">24</option><option value="25">25</option><option value="26">26</option><option value="27">27</option><option value="28">28</option><option value="29">29</option><option value="30">30</option><option value="31">31</option></select>
+        <select id="enlistD"><option value="" disabled selected hidden>日</option></select>
         <span>日</span>
       </div>
     </div>
@@ -132,11 +194,11 @@
     <div class="card">
       <label>退伍日期</label>
       <div class="date-row">
-        <select id="dischargeY"><option value="" disabled="" selected="" hidden="">年</option><option value="100">100</option><option value="101">101</option><option value="102">102</option><option value="103">103</option><option value="104">104</option><option value="105">105</option><option value="106">106</option><option value="107">107</option><option value="108">108</option><option value="109">109</option><option value="110">110</option><option value="111">111</option><option value="112">112</option><option value="113">113</option><option value="114">114</option><option value="115">115</option><option value="116">116</option><option value="117">117</option><option value="118">118</option><option value="119">119</option><option value="120">120</option><option value="121">121</option><option value="122">122</option><option value="123">123</option><option value="124">124</option><option value="125">125</option><option value="126">126</option><option value="127">127</option><option value="128">128</option><option value="129">129</option><option value="130">130</option><option value="131">131</option><option value="132">132</option><option value="133">133</option><option value="134">134</option><option value="135">135</option><option value="136">136</option><option value="137">137</option><option value="138">138</option><option value="139">139</option><option value="140">140</option><option value="141">141</option><option value="142">142</option><option value="143">143</option><option value="144">144</option><option value="145">145</option></select>
+        <select id="dischargeY"><option value="" disabled selected hidden>年</option></select>
         <span>年</span>
-        <select id="dischargeM"><option value="" disabled="" selected="" hidden="">月</option><option value="1">01</option><option value="2">02</option><option value="3">03</option><option value="4">04</option><option value="5">05</option><option value="6">06</option><option value="7">07</option><option value="8">08</option><option value="9">09</option><option value="10">10</option><option value="11">11</option><option value="12">12</option></select>
+        <select id="dischargeM"><option value="" disabled selected hidden>月</option></select>
         <span>月</span>
-        <select id="dischargeD"><option value="" disabled="" selected="" hidden="">日</option><option value="1">01</option><option value="2">02</option><option value="3">03</option><option value="4">04</option><option value="5">05</option><option value="6">06</option><option value="7">07</option><option value="8">08</option><option value="9">09</option><option value="10">10</option><option value="11">11</option><option value="12">12</option><option value="13">13</option><option value="14">14</option><option value="15">15</option><option value="16">16</option><option value="17">17</option><option value="18">18</option><option value="19">19</option><option value="20">20</option><option value="21">21</option><option value="22">22</option><option value="23">23</option><option value="24">24</option><option value="25">25</option><option value="26">26</option><option value="27">27</option><option value="28">28</option><option value="29">29</option><option value="30">30</option><option value="31">31</option></select>
+        <select id="dischargeD"><option value="" disabled selected hidden>日</option></select>
         <span>日</span>
       </div>
     </div>
@@ -208,6 +270,7 @@
 </div>
 
 <script>
+// 基礎數據[cite: 1]
 const rankData = {
   col1: { name: '上校', type: 'officer', salaries: [41900, 43440, 44970, 46500, 48030, 49560, 51100, 52630, 54160, 55690, 57220, 58760] },
   col2: { name: '中校', type: 'officer', salaries: [37310, 38460, 39610, 40760, 41900, 43050, 44200, 45350, 46500, 47650, 48800, 49950] },
@@ -224,24 +287,42 @@ const rankData = {
 };
 
 let calculatedYears = 0;
+const STORAGE_KEY = 'army_pension_data';
 
+// 格式化[cite: 1]
 function formatComma(val) { return val.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ","); }
 function pad(n) { return n < 10 ? '0' + n : n; }
+function rocToAD(y, m, d) { return new Date(parseInt(y) + 1911, parseInt(m) - 1, parseInt(d)); }
 
+// 初始化
 function initDateSelects() {
   const ey = document.getElementById('enlistY'); const dy = document.getElementById('dischargeY');
-  // 加入純數字選項[cite: 1]
   for (let i = 80; i <= 115; i++) ey.add(new Option(i, i));
   for (let i = 100; i <= 145; i++) dy.add(new Option(i, i));
-  
   const em = document.getElementById('enlistM'); const dm = document.getElementById('dischargeM');
   for (let i = 1; i <= 12; i++) { em.add(new Option(pad(i), i)); dm.add(new Option(pad(i), i)); }
-  
   const ed = document.getElementById('enlistD'); const dd = document.getElementById('dischargeD');
   for (let i = 1; i <= 31; i++) { ed.add(new Option(pad(i), i)); dd.add(new Option(pad(i), i)); }
 }
 
-function rocToAD(y, m, d) { return new Date(parseInt(y) + 1911, parseInt(m) - 1, parseInt(d)); }
+// 側邊欄開關[cite: 1]
+const menuToggle = document.getElementById('menuToggle');
+const sidebar = document.getElementById('sidebar');
+
+menuToggle.addEventListener('click', () => {
+  sidebar.classList.toggle('open');
+  menuToggle.textContent = sidebar.classList.contains('open') ? '✕' : '☰';
+  menuToggle.style.left = sidebar.classList.contains('open') ? '220px' : '20px';
+});
+
+// 點擊外面收合
+document.addEventListener('click', (e) => {
+  if (!sidebar.contains(e.target) && e.target !== menuToggle && sidebar.classList.contains('open')) {
+    sidebar.classList.remove('open');
+    menuToggle.textContent = '☰';
+    menuToggle.style.left = '20px';
+  }
+});
 
 function autoSetDischarge() {
   const ey = document.getElementById('enlistY').value;
@@ -259,23 +340,18 @@ function updateDates() {
   const ey = document.getElementById('enlistY').value; const em = document.getElementById('enlistM').value;
   const ed = document.getElementById('enlistD').value; const dy = document.getElementById('dischargeY').value;
   const dm = document.getElementById('dischargeM').value; const dd = document.getElementById('dischargeD').value;
-  
   if (!ey || !em || !ed || !dy || !dm || !dd) return;
-  
   const start = rocToAD(ey, em, ed); const end = rocToAD(dy, dm, dd);
   const err = document.getElementById('dateError'); const disp = document.getElementById('serviceDisplay');
-  
   if (end <= start) { 
     err.style.display = "block"; err.textContent = "退伍日期不可早於入伍日期"; 
     disp.textContent = "—"; calculatedYears = 0; return; 
   }
-  
   err.style.display = "none";
   let diff = end.getFullYear() - start.getFullYear();
   let mDiff = end.getMonth() - start.getMonth();
   if (end.getDate() < start.getDate()) mDiff--;
   if (mDiff < 0) { diff--; mDiff += 12; }
-  
   calculatedYears = diff + (mDiff / 12);
   disp.textContent = `${diff} 年 ${mDiff} 月`;
   calc();
@@ -285,7 +361,6 @@ function updateGrades() {
   const key = document.getElementById('rank').value; const gradeSelect = document.getElementById('grade');
   gradeSelect.innerHTML = '';
   if (!key) { gradeSelect.add(new Option("請先選擇階級", "")); return; }
-  // 俸級選單同樣套用 hidden 技巧[cite: 1]
   const placeholder = new Option("請選擇俸級", "");
   placeholder.disabled = true; placeholder.selected = true; placeholder.hidden = true;
   gradeSelect.add(placeholder);
@@ -293,35 +368,33 @@ function updateGrades() {
   document.getElementById('baseSalary').value = ""; calc();
 }
 
+// 核心計算與完整明細輸出[cite: 1]
 function calc() {
   const years = Math.floor(calculatedYears);
   const rawSalary = document.getElementById('baseSalary').value.replace(/,/g, '');
   const baseSalary = parseInt(rawSalary) || 0;
   const key = document.getElementById('rank').value;
   const breakdownDiv = document.getElementById('breakdown');
-  
+
   if (!key || !baseSalary || years < 20) {
     document.querySelectorAll('.result-value').forEach(el => el.textContent = "—");
-    if (years < 20 && key && baseSalary) {
-        breakdownDiv.innerHTML = '年資未滿 20 年，無法領取月退休俸。';
-    } else {
-        breakdownDiv.innerHTML = '請輸入完整資料開始試算。';
-    }
+    breakdownDiv.innerHTML = (years < 20 && key && baseSalary) ? '年資未滿 20 年，無法領取月退休俸。' : '請輸入完整資料開始試算。';
     return;
   }
 
   const info = rankData[key];
   const maxPct = info.type === 'officer' ? 90 : 95;
   let pct = Math.min(maxPct, 55 + (years - 20) * 2);
-  const period = (years / 5).toFixed(1); 
   const baseNum = baseSalary * 2;
   const monthly = Math.round(baseNum * (pct / 100));
+  const period = (years / 5).toFixed(1);
 
   document.getElementById('baseNum').textContent = `NT$ ${formatComma(baseNum)}`;
   document.getElementById('pct').textContent = `${pct}%`;
   document.getElementById('monthly').textContent = `NT$ ${formatComma(monthly)}`;
   document.getElementById('annual').textContent = `NT$ ${formatComma(monthly * 12)}`;
   
+  // 恢復詳細的明細與註解[cite: 1]
   breakdownDiv.innerHTML = `
     服役年資：${years}年<br>
     計算基數：最後五分之一年資（約最後 ${period} 年）薪資平均 NT$ ${formatComma(baseSalary)} × 2 = NT$ ${formatComma(baseNum)}<br>
@@ -333,6 +406,53 @@ function calc() {
   `;
 }
 
+// 儲存邏輯[cite: 1]
+document.getElementById('saveBtn').addEventListener('click', () => {
+  const data = {
+    enlistY: document.getElementById('enlistY').value,
+    enlistM: document.getElementById('enlistM').value,
+    enlistD: document.getElementById('enlistD').value,
+    rank: document.getElementById('rank').value,
+    gradeIndex: document.getElementById('grade').selectedIndex
+  };
+  if (!data.enlistY || !data.rank || data.gradeIndex <= 0) {
+    alert('請輸入入伍日期、退伍階級與俸級後再儲存。');
+    return;
+  }
+  localStorage.setItem(STORAGE_KEY, JSON.stringify(data));
+  alert('資料已儲存！');
+  sidebar.classList.remove('open'); menuToggle.textContent = '☰'; menuToggle.style.left = '20px';
+});
+
+// 清除邏輯[cite: 1]
+document.getElementById('clearBtn').addEventListener('click', () => {
+  if (confirm('確定要清除存檔資料嗎？')) {
+    localStorage.removeItem(STORAGE_KEY);
+    location.reload();
+  }
+});
+
+// 讀取邏輯[cite: 1]
+function loadSavedData() {
+  const saved = localStorage.getItem(STORAGE_KEY);
+  if (!saved) return;
+  const data = JSON.parse(saved);
+  if (data.enlistY) document.getElementById('enlistY').value = data.enlistY;
+  if (data.enlistM) document.getElementById('enlistM').value = data.enlistM;
+  if (data.enlistD) document.getElementById('enlistD').value = data.enlistD;
+  autoSetDischarge();
+  if (data.rank) {
+    document.getElementById('rank').value = data.rank;
+    updateGrades();
+    setTimeout(() => {
+      if (data.gradeIndex) {
+        document.getElementById('grade').selectedIndex = data.gradeIndex;
+        document.getElementById('grade').dispatchEvent(new Event('change'));
+      }
+    }, 0);
+  }
+}
+
 document.getElementById('baseSalary').addEventListener('input', function(e) {
   let val = e.target.value.replace(/[^\d]/g, '');
   e.target.value = val ? formatComma(val) : '';
@@ -340,21 +460,13 @@ document.getElementById('baseSalary').addEventListener('input', function(e) {
 });
 
 initDateSelects();
+loadSavedData();
 
-['enlistY', 'enlistM', 'enlistD'].forEach(id => {
-  document.getElementById(id).addEventListener('change', autoSetDischarge);
-});
-
-['dischargeY', 'dischargeM', 'dischargeD'].forEach(id => {
-  document.getElementById(id).addEventListener('change', updateDates);
-});
-
+['enlistY', 'enlistM', 'enlistD'].forEach(id => document.getElementById(id).addEventListener('change', autoSetDischarge));
+['dischargeY', 'dischargeM', 'dischargeD'].forEach(id => document.getElementById(id).addEventListener('change', updateDates));
 document.getElementById('rank').addEventListener('change', updateGrades);
 document.getElementById('grade').addEventListener('change', (e) => {
-  if(e.target.value) { 
-    document.getElementById('baseSalary').value = formatComma(e.target.value); 
-    calc(); 
-  }
+  if(e.target.value) { document.getElementById('baseSalary').value = formatComma(e.target.value); calc(); }
 });
 
 document.getElementById('themeToggle').addEventListener('click', () => {
@@ -365,4 +477,5 @@ document.getElementById('themeToggle').addEventListener('click', () => {
 });
 </script>
 
-</body></html>
+</body>
+</html>
