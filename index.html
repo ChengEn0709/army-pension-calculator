@@ -157,20 +157,29 @@
     .card {
       background: var(--card-bg); border: 0.5px solid var(--card-border);
       border-radius: 14px; padding: 1.2rem 1.25rem;
+      text-align: center; /* 讓卡片內所有內容預設置中 */
     }
-    /* 修正：電腦端也讓總服役年資置中 */
-    .card.full { grid-column: 1 / -1; text-align: center; }
+    .card.full { grid-column: 1 / -1; }
     .card label { display: block; font-size: 13px; color: var(--muted); margin-bottom: 8px; }
 
+    /* 確保所有下拉選單與輸入框文字置中 */
     select, input {
       width: 100%; font-size: 14px; padding: 7px 10px;
       border: 1px solid var(--input-border); border-radius: 8px;
       background: var(--input-bg); color: var(--text); outline: none;
-      text-align: inherit; 
+      text-align: center;
+      text-align-last: center; /* 確保選取後的文字在各瀏覽器也置中 */
     }
 
-    .date-row { display: flex; align-items: center; gap: 4px; }
-    .date-row select { flex: 1; min-width: 0; padding: 8px 4px; text-align: center; font-variant-numeric: tabular-nums; }
+    /* 移除 iOS 默認樣式以確保文字對齊生效 */
+    select {
+      -webkit-appearance: none;
+      -moz-appearance: none;
+      appearance: none;
+    }
+
+    .date-row { display: flex; align-items: center; gap: 4px; justify-content: center; }
+    .date-row select { flex: 1; min-width: 0; padding: 8px 4px; font-variant-numeric: tabular-nums; }
     .date-row span { font-size: 12px; color: var(--muted); }
 
     .manual-row { display: flex; align-items: center; gap: 10px; }
@@ -199,21 +208,13 @@
     @media (max-width: 480px) { 
         .grid-2 { grid-template-columns: 1fr 1fr; } 
         
-        .grid-2 .card:nth-child(1),
-        .grid-2 .card:nth-child(2) {
-            text-align: center;
-        }
-
         .grid-2 .card:nth-child(3),
         .grid-2 .card:nth-child(4),
         .grid-2 .card:nth-child(5) {
             grid-column: 1 / -1; 
-            text-align: center;
         }
 
-        .date-row { justify-content: center; }
         .date-row select { flex: 0 1 80px; }
-
         .results { grid-template-columns: 1fr 1fr 1fr; }
         .result-box .result-value { font-size: 14px; }
         .sidebar { width: 80%; right: -80%; }
@@ -257,7 +258,7 @@
     <div class="card">
       <label>退伍階級</label>
       <select id="rank">
-        <option value="">請選擇</option>
+        <option value="" disabled selected hidden>請選擇</option>
         <optgroup label="校級"><option value="col1">上校</option><option value="col2">中校</option><option value="col3">少校</option></optgroup>
         <optgroup label="尉級"><option value="cap1">上尉</option><option value="cap2">中尉</option><option value="cap3">少尉</option></optgroup>
         <optgroup label="士官長"><option value="woff1">一等士官長</option><option value="woff2">二等士官長</option><option value="woff3">三等士官長</option></optgroup>
@@ -266,7 +267,7 @@
     </div>
     <div class="card">
       <label>俸級</label>
-      <select id="grade"><option value="">請先選擇</option></select>
+      <select id="grade"><option value="" disabled selected hidden>請先選擇階級</option></select>
     </div>
 
     <div class="card">
@@ -299,11 +300,11 @@
     </div>
   </div>
 
-  <div class="card" style="margin-bottom: 12px; display: flex; align-items: center; justify-content: space-between; border-left: 4px solid var(--accent);">
+  <div class="card" style="margin-bottom: 12px; display: flex; align-items: center; justify-content: space-between; border-left: 4px solid var(--accent); text-align: left;">
     <label style="margin-bottom: 0; font-weight: 600; line-height: 1.4;">最後五分之一年資<br>本俸平均數</label>
     <div class="manual-row">
       <span style="font-size:16px; font-weight:600; color: var(--muted-2);">NT$</span>
-      <input type="text" id="baseSalary" class="salary-input" placeholder="0">
+      <input type="text" id="baseSalary" class="salary-input" placeholder="0" style="text-align: right;">
     </div>
   </div>
 
@@ -313,7 +314,7 @@
     <div class="result-box"><div class="result-label">年領退俸</div><div class="result-value highlight-value" id="annual">—</div></div>
   </div>
 
-  <div class="card"><div class="breakdown" id="breakdown">請輸入完整資料開始試算</div></div>
+  <div class="card" style="text-align: left;"><div class="breakdown" id="breakdown">請輸入完整資料開始試算</div></div>
   <footer>Copyright©2026 ChengEn V1.6.0</footer>
 </div>
 
@@ -404,8 +405,8 @@ function updateDates() {
 function updateGrades() {
   const key = document.getElementById('rank').value; const gradeSelect = document.getElementById('grade');
   gradeSelect.innerHTML = '';
-  if (!key) { gradeSelect.add(new Option("請先選擇", "")); return; }
-  const placeholder = new Option("請選擇", ""); placeholder.disabled = true; placeholder.selected = true; placeholder.hidden = true;
+  if (!key) { gradeSelect.add(new Option("請先選擇階級", "")); return; }
+  const placeholder = new Option("請選擇俸級", ""); placeholder.disabled = true; placeholder.selected = true; placeholder.hidden = true;
   gradeSelect.add(placeholder);
   rankData[key].salaries.forEach((s, i) => gradeSelect.add(new Option(i + 1, s)));
   document.getElementById('baseSalary').value = ""; calc();
