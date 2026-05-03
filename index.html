@@ -1,0 +1,366 @@
+<!DOCTYPE html>
+<html lang="zh-TW" data-theme="dark">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>國軍退休俸試算 - 專業版</title>
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    :root {
+      --bg: #f5f5f7;
+      --text: #1d1d1f;
+      --muted: #6e6e73;
+      --muted-2: #aeaeb2;
+      --card-bg: #ffffff;
+      --card-border: #d2d2d7;
+      --chip-bg: #e8e8ed;
+      --input-bg: #ffffff;
+      --input-border: #d2d2d7;
+      --accent: #0071e3;
+      --error: #ff3b30;
+    }
+
+    [data-theme="dark"] {
+      --bg: #000000;
+      --text: #f5f5f7;
+      --muted: #a1a1a6;
+      --muted-2: #6e6e73;
+      --card-bg: #1c1c1e;
+      --card-border: #38383a;
+      --chip-bg: #2c2c2e;
+      --input-bg: #1c1c1e;
+      --input-border: #48484a;
+      --accent: #0a84ff;
+      --error: #ff453a;
+    }
+
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", "Noto Sans TC", sans-serif;
+      background: var(--bg);
+      color: var(--text);
+      min-height: 100vh;
+      padding: 2rem 1rem;
+    }
+
+    .container { max-width: 700px; margin: 0 auto; }
+    .top-bar { display: flex; justify-content: flex-end; margin-bottom: 12px; }
+    .theme-toggle {
+      display: inline-flex; align-items: center; gap: 6px; font-size: 13px;
+      padding: 6px 12px; border-radius: 999px; border: 1px solid var(--card-border);
+      background: var(--card-bg); color: var(--text); cursor: pointer;
+    }
+
+    h1 { font-size: 22px; font-weight: 600; margin-bottom: 6px; }
+    .subtitle {
+      font-size: 13px; color: var(--muted); margin-bottom: 1.5rem;
+      background: var(--chip-bg); padding: 8px 14px; border-radius: 10px;
+    }
+
+    .grid-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin-bottom: 12px; }
+    .card {
+      background: var(--card-bg); border: 0.5px solid var(--card-border);
+      border-radius: 14px; padding: 1rem 1.25rem;
+    }
+    .card.full { grid-column: 1 / -1; }
+    .card label { display: block; font-size: 13px; color: var(--muted); margin-bottom: 8px; }
+
+    select, input {
+      width: 100%; font-size: 14px; padding: 7px 10px;
+      border: 1px solid var(--input-border); border-radius: 8px;
+      background: var(--input-bg); color: var(--text); outline: none;
+    }
+
+    .date-row { display: flex; align-items: center; gap: 4px; }
+    .date-row select { flex: 1; min-width: 0; padding: 6px 4px; text-align: center; font-variant-numeric: tabular-nums; }
+    .date-row span { font-size: 12px; color: var(--muted); }
+
+    .manual-row { display: flex; align-items: center; gap: 10px; }
+    .salary-input {
+      width: 180px; height: 52px; font-size: 22px; font-weight: 700; 
+      text-align: right; border: 2px solid var(--accent); color: var(--accent);
+    }
+
+    .results { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 12px; margin-bottom: 12px; }
+    .result-box { background: var(--chip-bg); border-radius: 12px; padding: 1rem; text-align: center; }
+    .result-box .result-label { font-size: 12px; color: var(--muted); margin-bottom: 6px; }
+    .result-box .result-value { font-size: 18px; font-weight: 500; }
+
+    .annual-box {
+      background: var(--chip-bg); border-radius: 12px; padding: 1rem;
+      text-align: center; margin-bottom: 1.5rem;
+    }
+    .annual-box .result-value { font-size: 28px; font-weight: 600; }
+
+    .breakdown { font-size: 13px; color: var(--text); line-height: 1.8; padding: 4px 0; }
+    .breakdown strong { color: var(--accent); }
+    .breakdown .formula-note { 
+      color: var(--muted); font-size: 12px; margin-top: 8px; 
+      border-top: 1px solid var(--card-border); padding-top: 8px; 
+    }
+
+    .error { font-size: 12px; color: var(--error); margin-top: 6px; display: none; }
+    footer { margin-top: 2rem; text-align: center; font-size: 12px; color: var(--muted-2); }
+
+    @media (max-width: 480px) { .grid-2, .results { grid-template-columns: 1fr; } }
+  </style>
+</head>
+<body>
+<div class="container">
+  <div class="top-bar">
+    <button class="theme-toggle" id="themeToggle">
+      <span id="themeIcon">☀️</span><span id="themeLabel">淺色模式</span>
+    </button>
+  </div>
+  <h1>國軍退休俸試算</h1>
+  <p class="subtitle">依新制月退休俸計算公式試算，結果僅供參考。</p>
+
+  <div class="grid-2">
+    <div class="card">
+      <label>入伍日期</label>
+      <div class="date-row">
+        <select id="enlistY"><option value="">年</option></select>
+        <span>年</span>
+        <select id="enlistM"><option value="">月</option></select>
+        <span>月</span>
+        <select id="enlistD"><option value="">日</option></select>
+        <span>日</span>
+      </div>
+    </div>
+
+    <div class="card">
+      <label>退伍日期</label>
+      <div class="date-row">
+        <select id="dischargeY"><option value="">年</option></select>
+        <span>年</span>
+        <select id="dischargeM"><option value="">月</option></select>
+        <span>月</span>
+        <select id="dischargeD"><option value="">日</option></select>
+        <span>日</span>
+      </div>
+    </div>
+
+    <div class="card full">
+      <p style="font-size:13px; color:var(--muted)">服役計算年資</p>
+      <p id="serviceDisplay" style="font-size: 18px; font-weight: 600; color: var(--accent); margin-top: 4px;">—</p>
+      <div class="error" id="dateError"></div>
+    </div>
+
+    <div class="card">
+      <label>退伍階級</label>
+      <select id="rank">
+        <option value="">請選擇階級</option>
+        <optgroup label="校級">
+          <option value="col1">上校</option><option value="col2">中校</option><option value="col3">少校</option>
+        </optgroup>
+        <optgroup label="尉級">
+          <option value="cap1">上尉</option><option value="cap2">中尉</option><option value="cap3">少尉</option>
+        </optgroup>
+        <optgroup label="士官長">
+          <option value="woff1">一等士官長</option><option value="woff2">二等士官長</option><option value="woff3">三等士官長</option>
+        </optgroup>
+        <optgroup label="士官">
+          <option value="sgt1">上士</option><option value="sgt2">中士</option><option value="sgt3">下士</option>
+        </optgroup>
+      </select>
+    </div>
+
+    <div class="card">
+      <label>俸級</label>
+      <select id="grade"><option value="">請先選擇階級</option></select>
+    </div>
+  </div>
+
+  <div class="card" style="margin-bottom: 12px; display: flex; align-items: center; justify-content: space-between; border-left: 4px solid var(--accent);">
+    <label style="margin-bottom: 0; font-weight: 600;">平均本俸（最後 1/5 年資）</label>
+    <div class="manual-row">
+      <span style="font-size:16px; font-weight:600; color: var(--muted-2);">NT$</span>
+      <input type="text" id="baseSalary" class="salary-input" placeholder="0">
+    </div>
+  </div>
+
+  <div class="results">
+    <div class="result-box">
+      <div class="result-label">計算基數</div>
+      <div class="result-value" id="baseNum">—</div>
+    </div>
+    <div class="result-box">
+      <div class="result-label">退休俸率</div>
+      <div class="result-value" id="pct">—</div>
+    </div>
+    <div class="result-box">
+      <div class="result-label">每月退休俸</div>
+      <div class="result-value" id="monthly">—</div>
+    </div>
+  </div>
+
+  <div class="annual-box">
+    <div class="result-label">年領退休俸</div>
+    <div class="result-value" id="annual">—</div>
+  </div>
+
+  <div class="card">
+    <div class="breakdown" id="breakdown">請輸入完整資料開始試算</div>
+  </div>
+
+  <footer>Copyright©2026 ChengEn V1.6.0</footer>
+</div>
+
+<script>
+/**
+ * 更新後的階級與本俸數據 (rankData)
+ */
+const rankData = {
+  col1: { name: '上校', type: 'officer', salaries: [41900, 43440, 44970, 46500, 48030, 49560, 51100, 52630, 54160, 55690, 57220, 58760] },
+  col2: { name: '中校', type: 'officer', salaries: [37310, 38460, 39610, 40760, 41900, 43050, 44200, 45350, 46500, 47650, 48800, 49950] },
+  col3: { name: '少校', type: 'officer', salaries: [32710, 33860, 35010, 36160, 37310, 38460, 39610, 40760, 41900, 43050, 44200, 45350] },
+  cap1: { name: '上尉', type: 'officer', salaries: [28880, 30030, 31180, 32330, 33480, 34630, 35780, 36930, 38070, 39220, 40370, 41520] },
+  cap2: { name: '中尉', type: 'officer', salaries: [25050, 25820, 26580, 27350, 28120, 28880, 29650, 30410, 31180, 31950] },
+  cap3: { name: '少尉', type: 'officer', salaries: [22750, 23520, 24290, 25050, 25820, 26580, 27350, 28120, 28880, 29650] },
+  woff1: { name: '一等士官長', type: 'nco', salaries: [28880, 29650, 30410, 31180, 31950, 32710, 33480, 34240, 35010, 35780, 36540, 37310, 38070, 38840, 39610, 40370, 41140, 41900, 42670, 43440] },
+  woff2: { name: '二等士官長', type: 'nco', salaries: [25050, 25820, 26580, 27350, 28120, 28880, 29650, 30410, 31180, 31950, 32710, 33480, 34240, 35010, 35780, 36540, 37310, 38070, 38840, 39610] },
+  woff3: { name: '三等士官長', type: 'nco', salaries: [22750, 23520, 24290, 25050, 25820, 26580, 27350, 28120, 28880, 29650, 30410, 31180, 31950, 32710, 33480, 34240, 35010, 35780, 36540, 37310] },
+  sgt1: { name: '上士', type: 'nco', salaries: [21220, 21990, 22750, 23520, 24290, 25050, 25820, 26580, 27350, 28120, 28880, 29650] },
+  sgt2: { name: '中士', type: 'nco', salaries: [17390, 18160, 18920, 19690, 20460, 21220, 21990, 22750, 23520, 24290, 25050, 25820] },
+  sgt3: { name: '下士', type: 'nco', salaries: [13380, 13920, 14460, 15000, 15540, 16090, 16630, 17390, 18160, 18920, 19690, 20460] }
+};
+
+let calculatedYears = 0;
+
+function formatComma(val) { return val.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ","); }
+function pad(n) { return n < 10 ? '0' + n : n; }
+
+function initDateSelects() {
+  const ey = document.getElementById('enlistY'); const dy = document.getElementById('dischargeY');
+  for (let i = 80; i <= 115; i++) ey.add(new Option(i, i));
+  for (let i = 100; i <= 145; i++) dy.add(new Option(i, i));
+  
+  const em = document.getElementById('enlistM'); const dm = document.getElementById('dischargeM');
+  for (let i = 1; i <= 12; i++) { em.add(new Option(pad(i), i)); dm.add(new Option(pad(i), i)); }
+  
+  const ed = document.getElementById('enlistD'); const dd = document.getElementById('dischargeD');
+  for (let i = 1; i <= 31; i++) { ed.add(new Option(pad(i), i)); dd.add(new Option(pad(i), i)); }
+}
+
+function rocToAD(y, m, d) { return new Date(parseInt(y) + 1911, parseInt(m) - 1, parseInt(d)); }
+
+function autoSetDischarge() {
+  const ey = document.getElementById('enlistY').value;
+  const em = document.getElementById('enlistM').value;
+  const ed = document.getElementById('enlistD').value;
+  if (ey && em && ed) {
+    document.getElementById('dischargeY').value = parseInt(ey) + 20;
+    document.getElementById('dischargeM').value = em;
+    document.getElementById('dischargeD').value = ed;
+    updateDates();
+  }
+}
+
+function updateDates() {
+  const ey = document.getElementById('enlistY').value; const em = document.getElementById('enlistM').value;
+  const ed = document.getElementById('enlistD').value; const dy = document.getElementById('dischargeY').value;
+  const dm = document.getElementById('dischargeM').value; const dd = document.getElementById('dischargeD').value;
+  
+  if (!ey || !em || !ed || !dy || !dm || !dd) return;
+  
+  const start = rocToAD(ey, em, ed); const end = rocToAD(dy, dm, dd);
+  const err = document.getElementById('dateError'); const disp = document.getElementById('serviceDisplay');
+  
+  if (end <= start) { 
+    err.style.display = "block"; err.textContent = "退伍日期不可早於入伍日期"; 
+    disp.textContent = "—"; calculatedYears = 0; return; 
+  }
+  
+  err.style.display = "none";
+  let diff = end.getFullYear() - start.getFullYear();
+  let mDiff = end.getMonth() - start.getMonth();
+  if (end.getDate() < start.getDate()) mDiff--;
+  if (mDiff < 0) { diff--; mDiff += 12; }
+  
+  calculatedYears = diff + (mDiff / 12);
+  disp.textContent = `${diff} 年 ${mDiff} 月`;
+  calc();
+}
+
+function updateGrades() {
+  const key = document.getElementById('rank').value; const gradeSelect = document.getElementById('grade');
+  gradeSelect.innerHTML = '';
+  if (!key) { gradeSelect.add(new Option("請先選擇階級", "")); return; }
+  gradeSelect.add(new Option("請選擇俸級", ""));
+  rankData[key].salaries.forEach((s, i) => gradeSelect.add(new Option(i + 1, s)));
+  document.getElementById('baseSalary').value = ""; calc();
+}
+
+function calc() {
+  const years = Math.floor(calculatedYears);
+  const rawSalary = document.getElementById('baseSalary').value.replace(/,/g, '');
+  const baseSalary = parseInt(rawSalary) || 0;
+  const key = document.getElementById('rank').value;
+  const breakdownDiv = document.getElementById('breakdown');
+  
+  if (!key || !baseSalary || years < 20) {
+    document.querySelectorAll('.result-value').forEach(el => el.textContent = "—");
+    if (years < 20 && key && baseSalary) {
+        breakdownDiv.innerHTML = '年資未滿 20 年，無法領取月退休俸。';
+    } else {
+        breakdownDiv.innerHTML = '請輸入完整資料開始試算。';
+    }
+    return;
+  }
+
+  const info = rankData[key];
+  const maxPct = info.type === 'officer' ? 90 : 95;
+  let pct = Math.min(maxPct, 55 + (years - 20) * 2);
+  const period = (years / 5).toFixed(1); 
+  const baseNum = baseSalary * 2;
+  const monthly = Math.round(baseNum * (pct / 100));
+
+  document.getElementById('baseNum').textContent = `NT$ ${formatComma(baseNum)}`;
+  document.getElementById('pct').textContent = `${pct}%`;
+  document.getElementById('monthly').textContent = `NT$ ${formatComma(monthly)}`;
+  document.getElementById('annual').textContent = `NT$ ${formatComma(monthly * 12)}`;
+  
+  breakdownDiv.innerHTML = `
+    服役年資：${years}年<br>
+    計算基數：最後五分之一年資（約最後 ${period} 年）薪資平均 NT$ ${formatComma(baseSalary)} × 2 = NT$ ${formatComma(baseNum)}<br>
+    俸率：55% + (${years} − 20) × 2% = ${pct}%<br>
+    月退休俸：NT$ ${formatComma(baseNum)} × ${pct}% = <strong>NT$ ${formatComma(monthly)} / 月</strong>
+    <div class="formula-note">
+      公式：最後五分之一年資之平均本俸 × 2 × 俸率。軍官上限 90%，士官 95%。
+    </div>
+  `;
+}
+
+document.getElementById('baseSalary').addEventListener('input', function(e) {
+  let val = e.target.value.replace(/[^\d]/g, '');
+  e.target.value = val ? formatComma(val) : '';
+  calc();
+});
+
+initDateSelects();
+
+['enlistY', 'enlistM', 'enlistD'].forEach(id => {
+  document.getElementById(id).addEventListener('change', autoSetDischarge);
+});
+
+['dischargeY', 'dischargeM', 'dischargeD'].forEach(id => {
+  document.getElementById(id).addEventListener('change', updateDates);
+});
+
+document.getElementById('rank').addEventListener('change', updateGrades);
+document.getElementById('grade').addEventListener('change', (e) => {
+  if(e.target.value) { 
+    document.getElementById('baseSalary').value = formatComma(e.target.value); 
+    calc(); 
+  }
+});
+
+document.getElementById('themeToggle').addEventListener('click', () => {
+  const isDark = document.documentElement.getAttribute('data-theme') === 'dark';
+  document.documentElement.setAttribute('data-theme', isDark ? 'light' : 'dark');
+  document.getElementById('themeIcon').textContent = isDark ? '🌙' : '☀️';
+  document.getElementById('themeLabel').textContent = isDark ? '深色模式' : '淺色模式';
+});
+</script>
+</body>
+</html>
