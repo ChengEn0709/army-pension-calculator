@@ -157,21 +157,30 @@
     .card {
       background: var(--card-bg); border: 0.5px solid var(--card-border);
       border-radius: 14px; padding: 1.2rem 1.25rem;
-      text-align: center; /* 讓卡片內所有內容預設置中 */
+      text-align: center; 
     }
     .card.full { grid-column: 1 / -1; }
     .card label { display: block; font-size: 13px; color: var(--muted); margin-bottom: 8px; }
 
-    /* 確保所有下拉選單與輸入框文字置中 */
+    /* 通用輸入樣式[cite: 1] */
     select, input {
       width: 100%; font-size: 14px; padding: 7px 10px;
       border: 1px solid var(--input-border); border-radius: 8px;
       background: var(--input-bg); color: var(--text); outline: none;
-      text-align: center;
-      text-align-last: center; /* 確保選取後的文字在各瀏覽器也置中 */
     }
 
-    /* 移除 iOS 默認樣式以確保文字對齊生效 */
+    /* 針對日期選單維持置中[cite: 1] */
+    .date-row select {
+      text-align: center;
+      text-align-last: center;
+    }
+
+    /* 針對階級與俸級選單恢復靠左樣式[cite: 1] */
+    #rank, #grade {
+      text-align: left;
+      text-align-last: left;
+    }
+
     select {
       -webkit-appearance: none;
       -moz-appearance: none;
@@ -182,7 +191,23 @@
     .date-row select { flex: 1; min-width: 0; padding: 8px 4px; font-variant-numeric: tabular-nums; }
     .date-row span { font-size: 12px; color: var(--muted); }
 
-    .manual-row { display: flex; align-items: center; gap: 10px; }
+    .salary-card {
+      margin-bottom: 12px; 
+      display: flex; 
+      align-items: center; 
+      justify-content: space-between; 
+      border-left: 4px solid var(--accent); 
+      text-align: left;
+      gap: 10px;
+    }
+
+    .salary-card label {
+      margin-bottom: 0; 
+      font-weight: 600; 
+      white-space: nowrap; 
+    }
+
+    .manual-row { display: flex; align-items: center; gap: 10px; flex-shrink: 0; }
     .salary-input {
       width: 180px; height: 52px; font-size: 22px; font-weight: 700; 
       text-align: right; border: 2px solid var(--accent); color: var(--accent);
@@ -222,6 +247,10 @@
         .nav-time { font-size: 11px; } 
         .nav-right { gap: 8px; }
         .card { padding: 1.5rem 0.8rem; }
+        
+        .salary-card { flex-direction: column; align-items: flex-start; }
+        .salary-card label { white-space: normal; margin-bottom: 8px; }
+        .manual-row { width: 100%; justify-content: flex-end; }
     }
   </style>
 </head>
@@ -252,17 +281,33 @@
 </div>
 
 <div class="container">
-  <p class="subtitle">依新制月退休俸計算公式試算，結果僅供參考。</p>
+  <p class="subtitle">本網站依新制公式試算，結果僅供參考，實際應依核定數為主。</p>
 
   <div class="grid-2">
     <div class="card">
       <label>退伍階級</label>
       <select id="rank">
         <option value="" disabled selected hidden>請選擇</option>
-        <optgroup label="校級"><option value="col1">上校</option><option value="col2">中校</option><option value="col3">少校</option></optgroup>
-        <optgroup label="尉級"><option value="cap1">上尉</option><option value="cap2">中尉</option><option value="cap3">少尉</option></optgroup>
-        <optgroup label="士官長"><option value="woff1">一等士官長</option><option value="woff2">二等士官長</option><option value="woff3">三等士官長</option></optgroup>
-        <optgroup label="士官"><option value="sgt1">上士</option><option value="sgt2">中士</option><option value="sgt3">下士</option></optgroup>
+        <optgroup label="校級">
+          <option value="col1">&nbsp;&nbsp;上校</option>
+          <option value="col2">&nbsp;&nbsp;中校</option>
+          <option value="col3">&nbsp;&nbsp;少校</option>
+        </optgroup>
+        <optgroup label="尉級">
+          <option value="cap1">&nbsp;&nbsp;上尉</option>
+          <option value="cap2">&nbsp;&nbsp;中尉</option>
+          <option value="cap3">&nbsp;&nbsp;少尉</option>
+        </optgroup>
+        <optgroup label="士官長">
+          <option value="woff1">&nbsp;&nbsp;一等士官長</option>
+          <option value="woff2">&nbsp;&nbsp;二等士官長</option>
+          <option value="woff3">&nbsp;&nbsp;三等士官長</option>
+        </optgroup>
+        <optgroup label="士官">
+          <option value="sgt1">&nbsp;&nbsp;上士</option>
+          <option value="sgt2">&nbsp;&nbsp;中士</option>
+          <option value="sgt3">&nbsp;&nbsp;下士</option>
+        </optgroup>
       </select>
     </div>
     <div class="card">
@@ -300,8 +345,8 @@
     </div>
   </div>
 
-  <div class="card" style="margin-bottom: 12px; display: flex; align-items: center; justify-content: space-between; border-left: 4px solid var(--accent); text-align: left;">
-    <label style="margin-bottom: 0; font-weight: 600; line-height: 1.4;">最後五分之一年資<br>本俸平均數</label>
+  <div class="card salary-card">
+    <label>最後五分之一年資本俸平均數</label>
     <div class="manual-row">
       <span style="font-size:16px; font-weight:600; color: var(--muted-2);">NT$</span>
       <input type="text" id="baseSalary" class="salary-input" placeholder="0" style="text-align: right;">
