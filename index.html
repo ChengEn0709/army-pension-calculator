@@ -3,7 +3,7 @@
 <head>
   <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>國軍退休俸試算 - 專業版</title>
+  <title>國軍退休俸試算</title>
   <style>
     *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
 
@@ -83,25 +83,25 @@
       color: var(--text);
     }
 
-    /* 側邊欄樣式 */
+    /* 修正為右側側邊欄樣式 */
     .sidebar {
       position: fixed;
       top: var(--nav-height);
-      left: calc(-1 * var(--sidebar-width));
+      right: calc(-1 * var(--sidebar-width)); /* 改為右側隱藏 */
       width: var(--sidebar-width);
       height: calc(100% - var(--nav-height));
       background: var(--card-bg);
-      border-right: 1px solid var(--card-border);
+      border-left: 1px solid var(--card-border); /* 邊框改為左側 */
       padding: 20px;
       display: flex;
       flex-direction: column;
       gap: 15px;
-      transition: left 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+      transition: right 0.3s cubic-bezier(0.4, 0, 0.2, 1);
       z-index: 999;
-      box-shadow: 5px 0 15px rgba(0,0,0,0.1);
+      box-shadow: -5px 0 15px rgba(0,0,0,0.1);
     }
 
-    .sidebar.open { left: 0; }
+    .sidebar.open { right: 0; } /* 展開時對齊右側 */
 
     /* 切換按鈕樣式 */
     .menu-toggle {
@@ -114,7 +114,7 @@
       height: 40px;
       display: flex;
       align-items: center;
-      justify-content: center;
+      justify-content: flex-end; /* 按鈕圖示靠右 */
     }
 
     .container { max-width: 700px; margin: 0 auto; }
@@ -183,7 +183,7 @@
 
     @media (max-width: 480px) { 
         .grid-2, .results { grid-template-columns: 1fr; } 
-        .sidebar { width: 80%; left: -80%; }
+        .sidebar { width: 80%; right: -80%; } /* 手機端同樣從右側隱藏 */
         .nav-title { font-size: 16px; }
     }
   </style>
@@ -192,8 +192,8 @@
 
 <nav class="navbar">
   <div class="nav-left">
-    <!-- 這裡修改為 ./logo.png 以對應你的檔案 -->
     <img src="./logo.png" alt="Logo" class="nav-logo">
+    <!-- 修改 1：標題簡化為 國軍退休俸試算 -->
     <span class="nav-title">國軍退休俸試算</span>
   </div>
   <div class="nav-right">
@@ -201,6 +201,7 @@
   </div>
 </nav>
 
+<!-- 修改 2：側邊欄現在會從右方彈出 -->
 <div class="sidebar" id="sidebar">
   <div style="font-size: 14px; color: var(--muted); margin-bottom: 5px;">偏好設定</div>
   <button class="theme-toggle" id="themeToggle">
@@ -307,6 +308,7 @@
 </div>
 
 <script>
+/* JS 邏輯維持不變 */
 const rankData = {
   col1: { name: '上校', type: 'officer', salaries: [41900, 43440, 44970, 46500, 48030, 49560, 51100, 52630, 54160, 55690, 57220, 58760] },
   col2: { name: '中校', type: 'officer', salaries: [37310, 38460, 39610, 40760, 41900, 43050, 44200, 45350, 46500, 47650, 48800, 49950] },
