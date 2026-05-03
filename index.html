@@ -71,7 +71,7 @@
     .nav-right { 
       display: flex; 
       align-items: center; 
-      gap: 15px; /* 時間與三條線之間的間距 */
+      gap: 15px;
     }
 
     .nav-link {
@@ -94,7 +94,6 @@
       font-weight: 700;
     }
 
-    /* 導覽列時間顯示樣式 */
     .nav-time {
       font-family: "SF Mono", "Roboto Mono", monospace;
       font-size: 14px;
@@ -157,7 +156,7 @@
     .grid-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin-bottom: 12px; }
     .card {
       background: var(--card-bg); border: 0.5px solid var(--card-border);
-      border-radius: 14px; padding: 1rem 1.25rem;
+      border-radius: 14px; padding: 1.2rem 1.25rem;
     }
     .card.full { grid-column: 1 / -1; }
     .card label { display: block; font-size: 13px; color: var(--muted); margin-bottom: 8px; }
@@ -196,13 +195,16 @@
     footer { margin-top: 2rem; text-align: center; font-size: 12px; color: var(--muted-2); }
 
     @media (max-width: 480px) { 
-        .grid-2 { grid-template-columns: 1fr; } 
+        /* 強制所有 grid-2 項目在手機端併排顯示 */
+        .grid-2 { grid-template-columns: 1fr 1fr; } 
         .results { grid-template-columns: 1fr 1fr 1fr; }
         .result-box .result-value { font-size: 14px; }
         .sidebar { width: 80%; right: -80%; }
         .nav-title { font-size: 15px; }
-        .nav-time { font-size: 11px; } /* 手機版縮小時縮小時間字體 */
+        .nav-time { font-size: 11px; } 
         .nav-right { gap: 8px; }
+        /* 增加手機端卡片高度感 */
+        .card { padding: 1.5rem 0.75rem; }
     }
   </style>
 </head>
@@ -216,7 +218,6 @@
     </a>
   </div>
   <div class="nav-right">
-    <!-- 修正：將時間直接顯示在三條線左邊 -->
     <div class="nav-time" id="currentTime">Loading...</div>
     <button class="menu-toggle" id="menuToggle">☰</button>
   </div>
@@ -237,7 +238,21 @@
   <p class="subtitle">依新制月退休俸計算公式試算，結果僅供參考。</p>
 
   <div class="grid-2">
-    <!-- 表單內容與之前一致，此處省略部分重複代碼以保持簡潔 -->
+    <div class="card">
+      <label>退伍階級</label>
+      <select id="rank">
+        <option value="">請選擇階級</option>
+        <optgroup label="校級"><option value="col1">上校</option><option value="col2">中校</option><option value="col3">少校</option></optgroup>
+        <optgroup label="尉級"><option value="cap1">上尉</option><option value="cap2">中尉</option><option value="cap3">少尉</option></optgroup>
+        <optgroup label="士官長"><option value="woff1">一等士官長</option><option value="woff2">二等士官長</option><option value="woff3">三等士官長</option></optgroup>
+        <optgroup label="士官"><option value="sgt1">上士</option><option value="sgt2">中士</option><option value="sgt3">下士</option></optgroup>
+      </select>
+    </div>
+    <div class="card">
+      <label>俸級</label>
+      <select id="grade"><option value="">請先選擇階級</option></select>
+    </div>
+
     <div class="card">
       <label>入伍日期</label>
       <div class="date-row">
@@ -260,24 +275,11 @@
         <span>日</span>
       </div>
     </div>
+
     <div class="card full">
       <p style="font-size:13px; color:var(--muted)">服役計算年資</p>
       <p id="serviceDisplay" style="font-size: 18px; font-weight: 600; color: var(--accent); margin-top: 4px;">—</p>
       <div class="error" id="dateError"></div>
-    </div>
-    <div class="card">
-      <label>退伍階級</label>
-      <select id="rank">
-        <option value="">請選擇階級</option>
-        <optgroup label="校級"><option value="col1">上校</option><option value="col2">中校</option><option value="col3">少校</option></optgroup>
-        <optgroup label="尉級"><option value="cap1">上尉</option><option value="cap2">中尉</option><option value="cap3">少尉</option></optgroup>
-        <optgroup label="士官長"><option value="woff1">一等士官長</option><option value="woff2">二等士官長</option><option value="woff3">三等士官長</option></optgroup>
-        <optgroup label="士官"><option value="sgt1">上士</option><option value="sgt2">中士</option><option value="sgt3">下士</option></optgroup>
-      </select>
-    </div>
-    <div class="card">
-      <label>俸級</label>
-      <select id="grade"><option value="">請先選擇階級</option></select>
     </div>
   </div>
 
@@ -316,7 +318,6 @@ function updateClock() {
 setInterval(updateClock, 1000);
 updateClock();
 
-/* 其他 JS 邏輯保持不變 */
 const rankData = {
   col1: { name: '上校', type: 'officer', salaries: [41900, 43440, 44970, 46500, 48030, 49560, 51100, 52630, 54160, 55690, 57220, 58760] },
   col2: { name: '中校', type: 'officer', salaries: [37310, 38460, 39610, 40760, 41900, 43050, 44200, 45350, 46500, 47650, 48800, 49950] },
