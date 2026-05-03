@@ -67,40 +67,11 @@
     }
 
     .nav-left { display: flex; align-items: center; }
-    
-    .nav-right { 
-      display: flex; 
-      align-items: center; 
-      gap: 15px;
-    }
-
-    .nav-link {
-      display: flex;
-      align-items: center;
-      gap: 12px;
-      text-decoration: none;
-      color: inherit;
-    }
-
-    .nav-logo {
-      width: 32px;
-      height: 32px;
-      border-radius: 8px;
-      object-fit: cover;
-    }
-
-    .nav-title {
-      font-size: 18px;
-      font-weight: 700;
-    }
-
-    .nav-time {
-      font-family: "SF Mono", "Roboto Mono", monospace;
-      font-size: 14px;
-      color: var(--accent);
-      font-weight: 600;
-      white-space: nowrap;
-    }
+    .nav-right { display: flex; align-items: center; gap: 15px; }
+    .nav-link { display: flex; align-items: center; gap: 12px; text-decoration: none; color: inherit; }
+    .nav-logo { width: 32px; height: 32px; border-radius: 8px; object-fit: cover; }
+    .nav-title { font-size: 18px; font-weight: 700; }
+    .nav-time { font-family: "SF Mono", "Roboto Mono", monospace; font-size: 14px; color: var(--accent); font-weight: 600; white-space: nowrap; }
 
     .sidebar {
       position: fixed;
@@ -118,20 +89,11 @@
       z-index: 999;
       box-shadow: -5px 0 15px rgba(0,0,0,0.1);
     }
-
     .sidebar.open { right: 0; }
 
     .menu-toggle {
-      background: none;
-      border: none;
-      color: var(--text);
-      font-size: 24px;
-      cursor: pointer;
-      width: 30px;
-      height: 40px;
-      display: flex;
-      align-items: center;
-      justify-content: center;
+      background: none; border: none; color: var(--text); font-size: 24px;
+      cursor: pointer; width: 30px; height: 40px; display: flex; align-items: center; justify-content: center;
     }
 
     .container { max-width: 700px; margin: 0 auto; }
@@ -140,11 +102,8 @@
       display: inline-flex; align-items: center; gap: 6px; font-size: 13px;
       padding: 10px 16px; border-radius: 12px; border: 1px solid var(--card-border);
       background: var(--card-bg); color: var(--text); cursor: pointer;
-      transition: all 0.2s ease;
-      width: 100%;
-      justify-content: center;
+      transition: all 0.2s ease; width: 100%; justify-content: center;
     }
-
     .ctrl-btn.primary { background: var(--accent); color: #ffffff; border: none; }
 
     .subtitle {
@@ -156,56 +115,46 @@
     .grid-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin-bottom: 12px; }
     .card {
       background: var(--card-bg); border: 0.5px solid var(--card-border);
-      border-radius: 14px; padding: 1.2rem 1.25rem;
-      text-align: center; 
+      border-radius: 14px; padding: 1.2rem 1.25rem; text-align: center; 
     }
     .card.full { grid-column: 1 / -1; }
     .card label { display: block; font-size: 13px; color: var(--muted); margin-bottom: 8px; }
 
-    /* 通用輸入樣式[cite: 1] */
     select, input {
       width: 100%; font-size: 14px; padding: 7px 10px;
       border: 1px solid var(--input-border); border-radius: 8px;
       background: var(--input-bg); color: var(--text); outline: none;
     }
 
-    /* 針對日期選單維持置中[cite: 1] */
-    .date-row select {
+    /* 置中規則優化[cite: 1] */
+    .date-row select, 
+    select:invalid, 
+    select option[value=""] {
       text-align: center;
       text-align-last: center;
     }
 
-    /* 針對階級與俸級選單恢復靠左樣式[cite: 1] */
+    /* 階級選單內容靠左，但預設提示文字置中[cite: 1] */
     #rank, #grade {
       text-align: left;
       text-align-last: left;
     }
-
-    select {
-      -webkit-appearance: none;
-      -moz-appearance: none;
-      appearance: none;
+    #rank:invalid, #grade:invalid {
+      text-align: center;
+      text-align-last: center;
     }
+
+    select { -webkit-appearance: none; -moz-appearance: none; appearance: none; }
 
     .date-row { display: flex; align-items: center; gap: 4px; justify-content: center; }
     .date-row select { flex: 1; min-width: 0; padding: 8px 4px; font-variant-numeric: tabular-nums; }
     .date-row span { font-size: 12px; color: var(--muted); }
 
     .salary-card {
-      margin-bottom: 12px; 
-      display: flex; 
-      align-items: center; 
-      justify-content: space-between; 
-      border-left: 4px solid var(--accent); 
-      text-align: left;
-      gap: 10px;
+      margin-bottom: 12px; display: flex; align-items: center; justify-content: space-between; 
+      border-left: 4px solid var(--accent); text-align: left; gap: 10px;
     }
-
-    .salary-card label {
-      margin-bottom: 0; 
-      font-weight: 600; 
-      white-space: nowrap; 
-    }
+    .salary-card label { margin-bottom: 0; font-weight: 600; white-space: nowrap; }
 
     .manual-row { display: flex; align-items: center; gap: 10px; flex-shrink: 0; }
     .salary-input {
@@ -219,26 +168,16 @@
     .result-box .result-value { font-size: 16px; font-weight: 600; }
 
     .highlight-value { color: var(--accent); }
-
     .breakdown { font-size: 13px; color: var(--text); line-height: 1.8; padding: 4px 0; }
     .breakdown strong { color: var(--accent); }
-    .breakdown .formula-note { 
-      color: var(--muted); font-size: 12px; margin-top: 8px; 
-      border-top: 1px solid var(--card-border); padding-top: 8px; 
-    }
+    .breakdown .formula-note { color: var(--muted); font-size: 12px; margin-top: 8px; border-top: 1px solid var(--card-border); padding-top: 8px; }
 
     .error { font-size: 12px; color: var(--error); margin-top: 6px; display: none; }
     footer { margin-top: 2rem; text-align: center; font-size: 12px; color: var(--muted-2); }
 
     @media (max-width: 480px) { 
         .grid-2 { grid-template-columns: 1fr 1fr; } 
-        
-        .grid-2 .card:nth-child(3),
-        .grid-2 .card:nth-child(4),
-        .grid-2 .card:nth-child(5) {
-            grid-column: 1 / -1; 
-        }
-
+        .grid-2 .card:nth-child(3), .grid-2 .card:nth-child(4), .grid-2 .card:nth-child(5) { grid-column: 1 / -1; }
         .date-row select { flex: 0 1 80px; }
         .results { grid-template-columns: 1fr 1fr 1fr; }
         .result-box .result-value { font-size: 14px; }
@@ -248,9 +187,14 @@
         .nav-right { gap: 8px; }
         .card { padding: 1.5rem 0.8rem; }
         
+        /* 手機端標籤強制換行[cite: 1] */
         .salary-card { flex-direction: column; align-items: flex-start; }
-        .salary-card label { white-space: normal; margin-bottom: 8px; }
+        .salary-card label { white-space: normal; line-height: 1.4; margin-bottom: 12px; }
         .manual-row { width: 100%; justify-content: flex-end; }
+
+        /* 手機端選單預設文字置中強化[cite: 1] */
+        select { text-align: center; text-align-last: center; }
+        select option { text-align: left; }
     }
   </style>
 </head>
@@ -281,12 +225,13 @@
 </div>
 
 <div class="container">
-  <p class="subtitle">本網站依新制公式試算，結果僅供參考，實際應依核定數為主。</p>
+  <!-- 更新後的提示文字[cite: 1] -->
+  <p class="subtitle">本網站數據試算，僅供參考，實際應依主管機關核定為主。</p>
 
   <div class="grid-2">
     <div class="card">
       <label>退伍階級</label>
-      <select id="rank">
+      <select id="rank" required>
         <option value="" disabled selected hidden>請選擇</option>
         <optgroup label="校級">
           <option value="col1">&nbsp;&nbsp;上校</option>
@@ -312,28 +257,28 @@
     </div>
     <div class="card">
       <label>俸級</label>
-      <select id="grade"><option value="" disabled selected hidden>請先選擇階級</option></select>
+      <select id="grade" required><option value="" disabled selected hidden>請先選擇階級</option></select>
     </div>
 
     <div class="card">
       <label>入伍日期</label>
       <div class="date-row">
-        <select id="enlistY"><option value="" disabled selected hidden>年</option></select>
+        <select id="enlistY" required><option value="" disabled selected hidden>年</option></select>
         <span>年</span>
-        <select id="enlistM"><option value="" disabled selected hidden>月</option></select>
+        <select id="enlistM" required><option value="" disabled selected hidden>月</option></select>
         <span>月</span>
-        <select id="enlistD"><option value="" disabled selected hidden>日</option></select>
+        <select id="enlistD" required><option value="" disabled selected hidden>日</option></select>
         <span>日</span>
       </div>
     </div>
     <div class="card">
       <label>退伍日期</label>
       <div class="date-row">
-        <select id="dischargeY"><option value="" disabled selected hidden>年</option></select>
+        <select id="dischargeY" required><option value="" disabled selected hidden>年</option></select>
         <span>年</span>
-        <select id="dischargeM"><option value="" disabled selected hidden>月</option></select>
+        <select id="dischargeM" required><option value="" disabled selected hidden>月</option></select>
         <span>月</span>
-        <select id="dischargeD"><option value="" disabled selected hidden>日</option></select>
+        <select id="dischargeD" required><option value="" disabled selected hidden>日</option></select>
         <span>日</span>
       </div>
     </div>
